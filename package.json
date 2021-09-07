@@ -1,0 +1,23 @@
+{
+  "name": "relatedproducts",
+  "version": "1.0.0",
+  "description": "Related Product service",
+  "main": "/server/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RPP29-SDC-TEAMBONSAI/relatedProducts.git"
+  },
+  "author": "Will Casey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RPP29-SDC-TEAMBONSAI/relatedProducts/issues"
+  },
+  "homepage": "https://github.com/RPP29-SDC-TEAMBONSAI/relatedProducts#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.7.1"
+  }
+}
