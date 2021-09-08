@@ -1,4 +1,8 @@
-DROP TABLE relatedFeatures;
+DROP TABLE IF EXISTS relatedFeatures;
+DROP TABLE IF EXISTS relatedStaging;
+DROP TABLE IF EXISTS relatedFinal;
+DROP TABLE IF EXISTS featuresStaging;
+DROP TABLE IF EXISTS featuresFinal;
 /* create, copy, and transform related data to meet final schema */
 
 CREATE TABLE relatedStaging (
@@ -22,12 +26,15 @@ SELECT
 current_product_id,
 STRING_AGG(related_product_id::character varying, ',') AS related_ids
 FROM
-relatedStaging
+(SELECT
+DISTINCT related_product_id,
+current_product_id
+FROM
+relatedStaging ORDER BY current_product_id) as distinctValues
 GROUP BY
 current_product_id
 ORDER BY
 current_product_id;
-
 
 /* create, copy, and transform features data to meet final schema */
 
