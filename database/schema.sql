@@ -68,34 +68,37 @@ product_id
 ORDER BY
 product_id;
 
+CREATE UNIQUE INDEX pid ON relatedFinal(current_product_id);
+CREATE UNIQUE INDEX fid ON featuresFinal(product_id);
 
 /* create, copy, and transform final data to meet final schema */
 
 
-CREATE TABLE relatedFeatures (
-  product_id INT NOT NULL,
-  related_ids VARCHAR,
-  features VARCHAR,
-  values VARCHAR
-);
+-- CREATE TABLE relatedFeatures (
+--   product_id INT NOT NULL,
+--   related_ids VARCHAR,
+--   features VARCHAR,
+--   values VARCHAR
+-- );
 
-INSERT INTO relatedFeatures (product_id, related_ids, features, values)
-SELECT
-product_id,
-related_ids,
-features,
-values
-FROM
-(Select * from featuresFinal inner join relatedFinal on (product_id = current_product_id)) as final
-ORDER BY
-product_id;
+-- INSERT INTO relatedFeatures (product_id, related_ids, features, values)
+-- SELECT
+-- product_id,
+-- related_ids,
+-- features,
+-- values
+-- FROM
+-- (Select * from featuresFinal inner join relatedFinal on (product_id = current_product_id)) as final
+-- ORDER BY
+-- product_id;
 
 
 
 
 DROP TABLE relatedStaging;
-DROP TABLE relatedFinal;
+-- DROP TABLE relatedFinal;
 DROP TABLE featuresStaging;
-DROP TABLE featuresFinal;
+-- DROP TABLE featuresFinal;
 
-
+GRANT connect ON DATABASE sdctesting TO client;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO client;

@@ -25,7 +25,7 @@ describe('testing API requests for related ids', () => {
     const response = await request.get('/api/related?id=45643643564')
 
     expect(response.status).toBe(400);
-    expect(response.text).toBe('ID not found')
+    expect(response.text).toBe('Error connecting to DB')
 
   })
 
