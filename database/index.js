@@ -1,9 +1,9 @@
 const { Pool } = require('pg');
 const pool = new Pool({
-  user: 'client',
+  user: process.ENV.pgUser,
   database: 'sdctesting',
-  password: 'client',
-  port: 5432,
+  password: process.ENV.pgPass,
+  port: process.ENV.pgPort,
   connectionTimeoutMillis: 10,
   allowExitOnIdle: true,
   idleTimeoutMillis: 10
