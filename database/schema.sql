@@ -12,7 +12,7 @@ CREATE TABLE relatedStaging (
 );
 
 COPY relatedStaging
-FROM '/Users/willcasey/Desktop/SDC/relatedProducts/data/related.csv'
+FROM '/home/ubuntu/related_data/related.csv'
 DELIMITER ','
 CSV HEADER;
 
@@ -46,7 +46,7 @@ CREATE TABLE featuresStaging (
 );
 
 COPY featuresStaging
-FROM '/Users/willcasey/Desktop/SDC/relatedProducts/data/features.csv'
+FROM '/home/ubuntu/related_data/features.csv'
 DELIMITER ','
 CSV HEADER;
 
@@ -100,5 +100,5 @@ DROP TABLE relatedStaging;
 DROP TABLE featuresStaging;
 -- DROP TABLE featuresFinal;
 
-GRANT connect ON DATABASE sdctesting TO client;
+GRANT connect ON DATABASE sdcrelated TO client;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO client;
