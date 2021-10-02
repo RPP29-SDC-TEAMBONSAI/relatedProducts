@@ -1,9 +1,11 @@
+require('dotenv').config();
+
 const { Pool } = require('pg');
 const pool = new Pool({
   user: process.env.pgUser,
   host: process.env.pgHost,
   database: process.env.pgDatabase,
-  password: process.env.pgPass,
+  password: process.env.pgPassword,
   port: process.env.pgPort,
   connectionTimeoutMillis: 10,
   allowExitOnIdle: true,
@@ -22,7 +24,6 @@ const pool = new Pool({
 
 // create promise to retrun the results from querying DB for featuers and values -- also format features and values into needed format here
 const relatedFeaturesQuery = (relatedIds, masterID, client) => {
-  relatedIds.unshift(Number(masterID))
   return client.query(`SELECT * FROM featuresFinal WHERE product_id IN (${relatedIds});`)
 };
 
@@ -40,8 +41,7 @@ const separateFeatures = (features, values) => {
   return featuresFinal;
 }
 
-module.exports.getRelatedIds = (req, res) => {
-  console.log(req.query.id)
+module.exports.getRelatedData = (req, res) => {
   if (!req.query.id) {
     res.status(400).send('missing product ID');
     return;
@@ -54,7 +54,6 @@ module.exports.getRelatedIds = (req, res) => {
     .then((client) => {
       return client.query(`SELECT related_ids FROM relatedFinal WHERE current_product_id=${req.query.id}`)
         .then(response => {
-          // client.release();
           let relatedIds = response.rows[0].related_ids.split(',').map(Number)
           let allIds = relatedIds;
           allIds.unshift(Number(req.query.id))
@@ -65,8 +64,6 @@ module.exports.getRelatedIds = (req, res) => {
             completeData[currentID] = productInfo
           })
           const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
-          // return promise.all for three async functions created above to get all data needed
-            // format data in final then block and send response with object
           return Promise.all([features])
         })
         // .then((allData) => {
@@ -88,7 +85,6 @@ module.exports.getRelatedIds = (req, res) => {
             finalData.push(completeData[key]);
           }
           finalData.push(completeData[req.query.id])
-          console.log(finalData)
           res.status(200)
           res.send(finalData)
         })
@@ -104,4 +100,11 @@ module.exports.getRelatedIds = (req, res) => {
 }
 
 
-
+// ratings endpoint
+  // module.exports.getRatings = (req, res) => {
+  //   const relatedIds = req.query.ids.map(Number)
+  //   return client.query(`SELECT (id, ratings) FROM metaData WHERE product_id IN (${relatedIds})`)
+  //     .then((data) => {
+  //       res.send(data)
+  //     })
+  // }
