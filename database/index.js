@@ -93,6 +93,7 @@ module.exports.getRelatedData = (req, res) => {
         })
     })
     .catch(err => {
+      console.log(err)
       res.status(400).send('Error connecting to DB')
     })
 }
