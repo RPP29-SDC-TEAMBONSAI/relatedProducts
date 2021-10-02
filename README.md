@@ -37,3 +37,15 @@ Reviews endpoints for Related Products:
     productID:
     overallRating:
   }
+
+
+/api/related{id}
+
+- query params: id
+
+- receives only 1 product Id at a time.
+- expected response will be the required data for the related products and features for the current product
+
+/api/addRelated{id, ids to add to existing}
+
+/api/deleteRelated{id, ids to delete from existing}

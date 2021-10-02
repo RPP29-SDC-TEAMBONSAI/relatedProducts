@@ -98,6 +98,14 @@ module.exports.getRelatedData = (req, res) => {
     })
 }
 
+// module.exports.addToRelated = (req, res) => {
+
+// }
+
+// module.exports.deleteFromRelated = (req, res) => {
+
+// }
+
 
 // ratings endpoint
   // module.exports.getRatings = (req, res) => {
