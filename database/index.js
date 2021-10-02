@@ -5,9 +5,9 @@ const pool = new Pool({
   database: process.env.pgDatabase,
   password: process.env.pgPassword,
   port: process.env.pgPort,
-  connectionTimeoutMillis: 10,
-  allowExitOnIdle: true,
-  idleTimeoutMillis: 10
+  // connectionTimeoutMillis: 50,
+  // allowExitOnIdle: true,
+  // idleTimeoutMillis: 100
 })
 
 // create promise to return the results from Poduct Overview API request for relatedID's
