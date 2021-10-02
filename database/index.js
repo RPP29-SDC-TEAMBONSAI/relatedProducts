@@ -9,16 +9,19 @@ const pool = new Pool({
   // allowExitOnIdle: true,
   // idleTimeoutMillis: 100
 })
+const axios = require('axios');
 
 // create promise to return the results from Poduct Overview API request for relatedID's
 // const relatedProductDataRequest = (relatedIDs) => {
-
+//   const splitID = relatedIDs.join(',')
+//   return axios.get(`productURL${splitIDs}`)
 // }
 
 // create promise to retrun the results from Ratings API request for relatedID's
-// const relatedRatingsRequest = (relatedIDs) => {
-
-// }
+const relatedRatingsRequest = (relatedIDs) => {
+  const splitID = relatedIDs.join(',')
+  return axios.get(`http://3.131.220.252:3000/reviews/relatedRatings?related=${splitID}`)
+}
 
 // create promise to retrun the results from querying DB for featuers and values -- also format features and values into needed format here
 const relatedFeaturesQuery = (relatedIds, masterID, client) => {
@@ -37,6 +40,21 @@ const separateFeatures = (features, values) => {
     featuresFinal.push(featureValuePair)
   })
   return featuresFinal;
+}
+
+const averageRatings = (allProducts) => {
+  const reducer = (prev, cur) => prev + cur;
+  for (let product in allProducts) {
+    const current = allProducts[product]
+    if (current.reviews) {
+      const length = current.reviews.length;
+      const sum = current.reviews.reduce(reducer);
+      const average = sum/length;
+      current.rating = average
+      delete current.reviews;
+    }
+  }
+  return allProducts
 }
 
 module.exports.getRelatedData = (req, res) => {
@@ -62,14 +80,15 @@ module.exports.getRelatedData = (req, res) => {
             completeData[currentID] = productInfo
           })
           const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
-          return Promise.all([features])
+          // const productInfo = relatedProductDataRequest(relatedIds);
+          const ratingInfo = relatedRatingsRequest(relatedIds);
+          return Promise.all([features, ratingInfo])
         })
         // .then((allData) => {
         //   //handle the data formatting here
 
         // })
         .then((allData) => {
-          client.release();
           allData[0].rows.map((id) => {
             let pid = id.product_id;
             let product = completeData[pid];
@@ -82,7 +101,18 @@ module.exports.getRelatedData = (req, res) => {
             }
             finalData.push(completeData[key]);
           }
+          let currentID = 0;
+          allData[1].data.map((review) => {
+            const product = completeData[review.productid]
+            if (!product.reviews) {
+              product.reviews = [review.rating]
+            } else {
+              product.reviews.push(review.rating)
+            }
+          })
+          const updatedData = averageRatings(completeData)
           finalData.push(completeData[req.query.id])
+          client.release();
           res.status(200)
           res.send(finalData)
         })
@@ -98,20 +128,31 @@ module.exports.getRelatedData = (req, res) => {
     })
 }
 
-// module.exports.addToRelated = (req, res) => {
+// module.exports.updateRelated = (req, res) => {
+//   if (!req.query.id) {
+//     res.status(400).send('missing product ID');
+//     return;
+//   }
+//   // let relatedIds = req.query.related.join('')
+//   let completeData = {};
+//   let finalData = [];
+//   res.status(200)
+//   res.send(`UPDATED ID ${req.query.id} WITH NEW RELATED IDS ${req.query.related}`)
 
+//   // pool
+//   //   .connect()
+//   //   .then((client) => {
+//   //     return client.query(`UPDATE relatedFinal SET related_ids= WHERE current_product_id=${req.query.id}`)
+//   //   })
 // }
 
-// module.exports.deleteFromRelated = (req, res) => {
-
-// }
 
 
 // ratings endpoint
-  // module.exports.getRatings = (req, res) => {
-  //   const relatedIds = req.query.ids.map(Number)
-  //   return client.query(`SELECT (id, ratings) FROM metaData WHERE product_id IN (${relatedIds})`)
-  //     .then((data) => {
-  //       res.send(data)
-  //     })
-  // }
+//   module.exports.getRatings = (req, res) => {
+//     const relatedIds = req.query.ids.map(Number)
+//     return client.query(`SELECT (id, ratings) FROM metaData WHERE product_id IN (${relatedIds})`)
+//       .then((data) => {
+//         res.send(data)
+//       })
+//   }
