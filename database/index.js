@@ -122,7 +122,7 @@ module.exports.getRelatedData = (req, res) => {
               // const updatedData = averageRatings(completeData)
               finalData.push(completeData[req.query.id])
               client.release();
-              // redisClient.setex(req.query.id, 900, JSON.stringify(finalData));
+              redisClient.setex(req.query.id, 900, JSON.stringify(finalData));
               res.status(200).send(finalData)
             })
             .catch(err => {
