@@ -75,10 +75,10 @@ module.exports.getRelatedData = (req, res) => {
 
   redisClient.get(req.query.id, (err, cachedData) => {
     if (cachedData) {
-      console.log('returning cached data')
+      console.log('returning cached data', req.query.id)
       res.status(200).send(cachedData)
     } else {
-      console.log('returning not cached data')
+      console.log('returning not cached data', req.query.id)
       pool
         .connect()
         .then((client) => {
