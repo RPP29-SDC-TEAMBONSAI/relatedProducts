@@ -7,7 +7,7 @@ const pool = new Pool({
   host: process.env.pgHost,
   database: process.env.pgDatabase,
   password: process.env.pgPassword,
-  port: process.env.pgPort,
+  port: process.env.pgPort
   // connectionTimeoutMillis: 50,
   // allowExitOnIdle: true,
   // idleTimeoutMillis: 100
@@ -83,6 +83,7 @@ module.exports.getRelatedData = (req, res) => {
           return client.query(`SELECT related_ids FROM relatedFinal WHERE current_product_id=${req.query.id}`)
             .then(response => {
               let relatedIds = response.rows[0].related_ids.split(',').map(Number)
+              console.log(relatedIds)
               let allIds = relatedIds;
               allIds.unshift(Number(req.query.id))
               allIds.map((currentID) => {
@@ -93,7 +94,7 @@ module.exports.getRelatedData = (req, res) => {
               })
               const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
               // const productInfo = relatedProductDataRequest(relatedIds);
-              const ratingInfo = relatedRatingsRequest(relatedIds);
+              // const ratingInfo = relatedRatingsRequest(relatedIds);
               return Promise.all([features])
             })
             .then((allData) => {
@@ -120,7 +121,7 @@ module.exports.getRelatedData = (req, res) => {
               // const updatedData = averageRatings(completeData)
               finalData.push(completeData[req.query.id])
               client.release();
-              redisClient.setex(req.query.id, 900, JSON.stringify(finalData));
+              redisClient.set(req.query.id, JSON.stringify(finalData));
               res.status(200).send(finalData)
             })
             .catch(err => {
@@ -131,7 +132,7 @@ module.exports.getRelatedData = (req, res) => {
         })
         .catch(err => {
           console.log(err)
-          res.status(400).send('Error connecting to DB')
+          res.status(400).send('Error connecting to database')
         })
     }
   })
@@ -139,31 +140,35 @@ module.exports.getRelatedData = (req, res) => {
 }
 
 
-// module.exports.updateRelated = (req, res) => {
-//   if (!req.query.id) {
-//     res.status(400).send('missing product ID');
-//     return;
-//   }
-//   // let relatedIds = req.query.related.join('')
-//   let completeData = {};
-//   let finalData = [];
-//   res.status(200)
-//   res.send(`UPDATED ID ${req.query.id} WITH NEW RELATED IDS ${req.query.related}`)
+module.exports.addRelatedId = (req, res) => {
+  console.log('HERE', req.query)
+  if (!req.query.id) {
+    res.status(400).send('missing product ID');
+    return;
+  }
 
-//   // pool
-//   //   .connect()
-//   //   .then((client) => {
-//   //     return client.query(`UPDATE relatedFinal SET related_ids= WHERE current_product_id=${req.query.id}`)
-//   //   })
-// }
+  pool
+    .connect()
+    .then((client) => {
+      return client.query(`UPDATE relatedFinal SET related_ids='${req.query.related}' WHERE current_product_id=${req.query.id}`)
+      .then((response) => {
+        client.release();
+        res.status(201).send(`SUCCESS updating ids for product_id = ${req.query.id}`)
+      })
+      .catch((err) =>  {
+        client.release();
+        console.log(err);
+        res.status(400).send('ERROR updating related Ids in database')
+      })
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).send('ERROR connecting to database')
+    })
+
+}
 
 
 
-// ratings endpoint
-//   module.exports.getRatings = (req, res) => {
-//     const relatedIds = req.query.ids.map(Number)
-//     return client.query(`SELECT (id, ratings) FROM metaData WHERE product_id IN (${relatedIds})`)
-//       .then((data) => {
-//         res.send(data)
-//       })
-//   }
+  // 60586,2064,39443,50885,48811,58299,63465
+  // 100000
