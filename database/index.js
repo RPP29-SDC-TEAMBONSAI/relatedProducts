@@ -83,7 +83,6 @@ module.exports.getRelatedData = (req, res) => {
           return client.query(`SELECT related_ids FROM relatedFinal WHERE current_product_id=${req.query.id}`)
             .then(response => {
               let relatedIds = response.rows[0].related_ids.split(',').map(Number)
-              console.log(relatedIds)
               let allIds = relatedIds;
               allIds.unshift(Number(req.query.id))
               allIds.map((currentID) => {
@@ -141,7 +140,6 @@ module.exports.getRelatedData = (req, res) => {
 
 
 module.exports.addRelatedId = (req, res) => {
-  console.log('HERE', req.query)
   if (!req.query.id) {
     res.status(400).send('missing product ID');
     return;
