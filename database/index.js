@@ -8,9 +8,6 @@ const pool = new Pool({
   database: process.env.pgDatabase,
   password: process.env.pgPassword,
   port: process.env.pgPort
-  // connectionTimeoutMillis: 50,
-  // allowExitOnIdle: true,
-  // idleTimeoutMillis: 100
 })
 
 
@@ -18,15 +15,28 @@ redisClient.on('client', (err) => {
   console.log(err)
 })
 
-// create promise to return the results from Poduct Overview API request for relatedID's
-// const relatedProductDataRequest = (relatedIDs) => {
-//   const splitID = relatedIDs.join(',')
-//   return axios.get(`productURL${splitIDs}`)
-// }
+const relatedProductDataRequest = (relatedIDs) => {
+  const splitID = relatedIDs.join(',')
+  return axios.get(`http://34.199.225.65:8080/sdc?ids=${splitID}`, {timeout: 2000})
+  .then((response) => {
+    return response;
+  })
+  .catch((err) => {
+    // console.log(err)
+    return null;
+  })
+}
 
 const relatedRatingsRequest = (relatedIDs) => {
   const splitID = relatedIDs.join(',')
-  return axios.get(`http://3.131.220.252:3000/reviews/relatedRatings?related=${splitID}`)
+  return axios.get(`http://3.131.220.252:3000/reviews/relatedRatings?related=${splitID}`, {timeout: 2000})
+  .then((response) => {
+    return response
+  })
+  .catch((err) => {
+    // console.log(err)
+    return null;
+  })
 }
 
 const relatedFeaturesQuery = (relatedIds, masterID, client) => {
@@ -64,6 +74,44 @@ const averageRatings = (allProducts) => {
   return allProducts
 }
 
+const formatFeatures = (allData, completeData) => {
+  allData.rows.map((id) => {
+    let pid = id.product_id;
+    let product = completeData[pid];
+    const featuresValues = separateFeatures(id.features, id.values)
+    featuresValues ? product.features = featuresValues : product.features = []
+
+  })
+  return completeData
+}
+
+const formatProductInfo = (allData, completeData) => {
+  for (let object of allData.data) {
+    if (object == null) {
+      continue
+    }
+    let pid = object[0][0].id;
+    let product = completeData[pid];
+    product.name = object[0][0].name
+    product.category = object[0][0].category
+    product.price = object[0][0].default_price
+    product.photos = object[0][0].photos
+  }
+  return completeData;
+}
+
+const formatRatings = (allData, completeData) => {
+  allData.data.map((review) => {
+    const product = completeData[review.productid]
+    if (!product.reviews) {
+      product.reviews = [review.rating]
+    } else {
+      product.reviews.push(review.rating)
+    }
+  })
+  return completeData;
+}
+
 module.exports.getRelatedData = (req, res) => {
   if (!req.query.id) {
     res.status(400).send('missing product ID');
@@ -73,68 +121,81 @@ module.exports.getRelatedData = (req, res) => {
   let completeData = {};
   let finalData = [];
 
-  redisClient.get(req.query.id, (err, cachedData) => {
-    if (cachedData) {
-      res.status(200).send(cachedData)
-    } else {
-      pool
-        .connect()
-        .then((client) => {
-          return client.query(`SELECT related_ids FROM relatedFinal WHERE current_product_id=${req.query.id}`)
-            .then(response => {
-              let relatedIds = response.rows[0].related_ids.split(',').map(Number)
-              let allIds = relatedIds;
-              allIds.unshift(Number(req.query.id))
-              allIds.map((currentID) => {
-                const productInfo = {
-                  id: currentID
-                }
-                completeData[currentID] = productInfo
-              })
-              const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
-              // const productInfo = relatedProductDataRequest(relatedIds);
-              // const ratingInfo = relatedRatingsRequest(relatedIds);
-              return Promise.all([features])
-            })
-            .then((allData) => {
-              allData[0].rows.map((id) => {
-                let pid = id.product_id;
-                let product = completeData[pid];
-                const featuresValues = separateFeatures(id.features, id.values)
-                product.features = featuresValues
-              })
-              for (const key in completeData) {
-                if (key == req.query.id) {
-                  continue;
-                }
-                finalData.push(completeData[key]);
-              }
-              // allData[1].data.map((review) => {
-              //   const product = completeData[review.productid]
-              //   if (!product.reviews) {
-              //     product.reviews = [review.rating]
-              //   } else {
-              //     product.reviews.push(review.rating)
-              //   }
-              // })
-              // const updatedData = averageRatings(completeData)
-              finalData.push(completeData[req.query.id])
-              client.release();
-              redisClient.set(req.query.id, JSON.stringify(finalData));
-              res.status(200).send(finalData)
-            })
-            .catch(err => {
-              console.log(err)
-              client.release();
-              res.status(400).send('Error finding ID')
-            })
+  pool
+  .connect()
+  .then((client) => {
+    return client.query(`SELECT related_ids FROM relatedFinal WHERE current_product_id=${req.query.id}`)
+      .then(response => {
+        let relatedIds = response.rows[0].related_ids.split(',').map(Number)
+        let allIds = relatedIds;
+        allIds.unshift(Number(req.query.id))
+        allIds.map((currentID) => {
+          const productInfo = {
+            id: currentID
+          }
+          completeData[currentID] = productInfo
         })
-        .catch(err => {
-          console.log(err)
-          res.status(400).send('Error connecting to database')
-        })
-    }
+        const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
+        const ratingInfo = relatedRatingsRequest(relatedIds);
+        const productInfo = relatedProductDataRequest(relatedIds);
+        return Promise.all([features, ratingInfo, productInfo])
+      })
+      .then((allData) => {
+        if (allData[0] == null) {
+          for (let id in completeData) {
+            completeData[id].features = [];
+          }
+        } else {
+          completeData = formatFeatures(allData[0], completeData)
+        }
+        if (allData[1] == null) {
+          for (let id in completeData) {
+            completeData[id].rating = 0
+          }
+        } else {
+          completeData = formatRatings(allData[1], completeData)
+          completeData = averageRatings(completeData)
+        }
+        if (allData[2] == null) {
+          for (let id in completeData) {
+            completeData[id].name = ''
+            completeData[id].category = ''
+            completeData[id].price = ''
+            completeData[id].photos = []
+          }
+        } else {
+          completeData = formatProductInfo(allData[2], completeData)
+        }
+        for (const key in completeData) {
+          if (key == req.query.id) {
+            continue;
+          }
+          finalData.push(completeData[key]);
+        }
+
+        finalData.push(completeData[req.query.id])
+        client.release();
+        // redisClient.set(req.query.id, JSON.stringify(finalData));
+        res.status(200).send(finalData)
+      })
+      .catch(err => {
+        // console.log(err)
+        client.release();
+        res.status(400).send('Error finding ID')
+      })
   })
+  .catch(err => {
+    // console.log(err)
+    res.status(400).send('Error connecting to database')
+  })
+
+  // redisClient.get(req.query.id, (err, cachedData) => {
+  //   if (cachedData) {
+  //     res.status(200).send(cachedData)
+  //   } else {
+
+  //   }
+  // })
 
 }
 
