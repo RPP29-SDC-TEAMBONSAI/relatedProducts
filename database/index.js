@@ -186,13 +186,13 @@ module.exports.getRelatedData = (req, res) => {
             res.status(200).send(finalData)
           })
           .catch(err => {
-            // console.log(err)
+            console.log(err)
             client.release();
             res.status(400).send('Error finding ID')
           })
       })
       .catch(err => {
-        // console.log(err)
+        console.log(err)
         res.status(400).send('Error connecting to database')
       })
     }

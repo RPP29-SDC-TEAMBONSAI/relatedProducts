@@ -10,7 +10,7 @@ export const options = {
   //   {duration: '30s', target: 1000},
   //   {duration: '15s', target: 0}
   //   ],
-  vus: 1000,
+  vus: 500,
   duration: '30s'
   // thresholds: {
   //   errors: ['rate<1']
