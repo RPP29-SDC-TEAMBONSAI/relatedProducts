@@ -17,7 +17,7 @@ redisClient.on('client', (err) => {
 
 const relatedProductDataRequest = (relatedIDs) => {
   const splitID = relatedIDs.join(',')
-  return axios.get(`http://34.199.225.65:8080/sdc?ids=${splitID}`, {timeout: 2000})
+  return axios.get(`http://34.199.225.65:8080/sdc?ids=${splitID}`, {timeout: 1000})
   .then((response) => {
     return response;
   })
@@ -29,7 +29,7 @@ const relatedProductDataRequest = (relatedIDs) => {
 
 const relatedRatingsRequest = (relatedIDs) => {
   const splitID = relatedIDs.join(',')
-  return axios.get(`http://3.131.220.252:3000/reviews/relatedRatings?related=${splitID}`, {timeout: 2000})
+  return axios.get(`http://3.131.220.252:3000/reviews/relatedRatings?related=${splitID}`, {timeout: 1000})
   .then((response) => {
     return response
   })
