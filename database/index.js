@@ -127,7 +127,7 @@ module.exports.getRelatedData = (req, res) => {
     if (cachedData) {
       console.log('cached')
       res.status(200).send(cachedData)
-    } else {
+    } else if (!cachedData || err) {
       pool
       .connect()
       .then((client) => {
