@@ -29,7 +29,7 @@ export const options = {
 
 export default function () {
 
-  const randomID = Math.floor(Math.random() * 1000)
+  const randomID = Math.floor(Math.random() * 10000)
 
   // check(http.get(`http://localhost:5000/api/related?id=${randomID}`), {
   //   'status is 200': (r) => r.status == 200,

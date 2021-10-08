@@ -126,7 +126,7 @@ module.exports.getRelatedData = (req, res) => {
   redisClient.get(req.query.id, (err, cachedData) => {
     if (cachedData) {
       res.status(200).send(cachedData)
-    } else if (!cachedData || err) {
+    } else {
       pool
       .connect()
       .then((client) => {
@@ -141,10 +141,10 @@ module.exports.getRelatedData = (req, res) => {
               }
               completeData[currentID] = productInfo
             })
-            const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
-            const ratingInfo = relatedRatingsRequest(relatedIds);
-            const productInfo = relatedProductDataRequest(relatedIds);
-            return Promise.all([features, ratingInfo, productInfo])
+            // const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
+            // const ratingInfo = relatedRatingsRequest(relatedIds);
+            // const productInfo = relatedProductDataRequest(relatedIds);
+            return Promise.all([relatedFeaturesQuery(relatedIds, req.query.id, client), relatedRatingsRequest(relatedIds), relatedProductDataRequest(relatedIds)])
           })
           .then((allData) => {
             if (allData[0] == null) {
@@ -185,7 +185,7 @@ module.exports.getRelatedData = (req, res) => {
             res.status(200).send(finalData)
           })
           .catch(err => {
-            console.log(req.query.id, err)
+            console.log(err)
             client.release();
             res.status(400).send('Error finding ID')
           })
