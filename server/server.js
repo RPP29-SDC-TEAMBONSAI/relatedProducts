@@ -24,8 +24,8 @@ if (cluster.isMaster) {
 
   app.use(cors());
 
-  app.get('/loaderio-24cc8486687e0fef9557290326befd1a.txt', (req, res) => {
-    res.send('loaderio-24cc8486687e0fef9557290326befd1a')
+  app.get('/loaderio-e3fb5d1a2308d0b90ec505dd2d6f16b1.txt', (req, res) => {
+    res.send('loaderio-e3fb5d1a2308d0b90ec505dd2d6f16b1')
   })
 
   app.use('/api', relatedProducts);
