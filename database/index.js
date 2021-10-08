@@ -144,7 +144,7 @@ module.exports.getRelatedData = (req, res) => {
             // const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
             // const ratingInfo = relatedRatingsRequest(relatedIds);
             // const productInfo = relatedProductDataRequest(relatedIds);
-            return Promise.all([relatedFeaturesQuery(relatedIds, req.query.id, client)])
+            return Promise.all([relatedFeaturesQuery(relatedIds, req.query.id, client), relatedRatingsRequest(relatedIds))
           })
           .then((allData) => {
             if (allData[0] == null) {
