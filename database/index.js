@@ -17,7 +17,7 @@ redisClient.on('client', (err) => {
 
 const relatedProductDataRequest = (relatedIDs) => {
   const splitID = relatedIDs.join(',')
-  return axios.get(`http://34.199.225.65:8080/sdc?ids=${splitID}`, {timeout: 2000})
+  return axios.get(`http://34.199.225.65:8080/sdc?ids=${splitID}`, {timeout: 5000})
   .then((response) => {
     return response;
   })
