@@ -22,6 +22,8 @@ if (cluster.isMaster) {
 
   const relatedProducts = require('./routes/related_products.js');
 
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cors());
 
   app.get('/loaderio-e3fb5d1a2308d0b90ec505dd2d6f16b1.txt', (req, res) => {
