@@ -4,7 +4,7 @@ const db = require('../../database/index.js');
 
 router.get('/related', db.getRelatedData);
 
-router.put('/addRelatedId', db.addRelatedId);
+router.put('/updateRelated', db.updateRelated);
 
 
 module.exports = router;

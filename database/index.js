@@ -144,7 +144,7 @@ module.exports.getRelatedData = (req, res) => {
             // const features = relatedFeaturesQuery(relatedIds, req.query.id, client)
             // const ratingInfo = relatedRatingsRequest(relatedIds);
             // const productInfo = relatedProductDataRequest(relatedIds);
-            return Promise.all([relatedFeaturesQuery(relatedIds, req.query.id, client), relatedRatingsRequest(relatedIds)])
+            return Promise.all([relatedFeaturesQuery(relatedIds, req.query.id, client), relatedRatingsRequest(relatedIds), relatedProductDataRequest(relatedIds)])
           })
           .then((allData) => {
             if (allData[0] == null) {
@@ -200,8 +200,8 @@ module.exports.getRelatedData = (req, res) => {
 }
 
 
-module.exports.addRelatedId = (req, res) => {
-  if (!req.query.id) {
+module.exports.updateRelated = (req, res) => {
+  if (!req.query.id || !req.query.related) {
     res.status(400).send('missing product ID');
     return;
   }
@@ -212,7 +212,7 @@ module.exports.addRelatedId = (req, res) => {
       return client.query(`UPDATE relatedFinal SET related_ids='${req.query.related}' WHERE current_product_id=${req.query.id}`)
       .then((response) => {
         client.release();
-        res.status(201).send(`SUCCESS updating ids for product_id = ${req.query.id}`)
+        res.status(201).send(`SUCCESS updating ids for product_id = ${req.query.id} with ids = ${req.query.related}`)
       })
       .catch((err) =>  {
         client.release();
