@@ -29,7 +29,7 @@ const relatedProductDataRequest = (relatedIDs) => {
 
 const relatedRatingsRequest = (relatedIDs) => {
   const splitID = relatedIDs.join(',')
-  return axios.get(`http://13.58.193.244:3000/reviews/relatedRatings?related=${splitID}`, {timeout: 2000})
+  return axios.get(`http://3.131.220.252:3000/reviews/relatedRatings?related=${splitID}`, {timeout: 3000})
   .then((response) => {
     return response
   })
