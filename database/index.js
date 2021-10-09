@@ -209,10 +209,10 @@ module.exports.updateRelated = (req, res) => {
   pool
     .connect()
     .then((client) => {
-      return client.query(`UPDATE relatedFinal SET related_ids='${req.query.related}' WHERE current_product_id=${req.query.id}`)
+      return client.query(`UPDATE relatedFinal SET related_ids='${req.body.related}' WHERE current_product_id=${req.body.id}`)
       .then((response) => {
         client.release();
-        res.status(201).send(`SUCCESS updating ids for product_id = ${req.query.id} with ids = ${req.query.related}`)
+        res.status(201).send(`SUCCESS updating ids for product_id = ${req.body.id} with ids = ${req.body.related}`)
       })
       .catch((err) =>  {
         client.release();
