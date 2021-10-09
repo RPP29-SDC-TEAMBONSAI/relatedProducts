@@ -201,7 +201,7 @@ module.exports.getRelatedData = (req, res) => {
 
 
 module.exports.updateRelated = (req, res) => {
-  if (!req.query.id || !req.query.related) {
+  if (!req.body.id || !req.body.related) {
     res.status(400).send('missing product ID');
     return;
   }
