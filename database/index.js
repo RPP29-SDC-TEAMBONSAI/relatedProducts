@@ -17,7 +17,7 @@ redisClient.on('client', (err) => {
 
 const relatedProductDataRequest = (relatedIDs) => {
   const splitID = relatedIDs.join(',')
-  return axios.get(`http://34.199.225.65:8080/sdc?ids=${splitID}`, {timeout: 5000})
+  return axios.get(`http://34.199.225.65:8080/sdc?ids=${splitID}`, {timeout: 2500})
   .then((response) => {
     return response;
   })
@@ -29,7 +29,7 @@ const relatedProductDataRequest = (relatedIDs) => {
 
 const relatedRatingsRequest = (relatedIDs) => {
   const splitID = relatedIDs.join(',')
-  return axios.get(`http://3.131.220.252:3000/reviews/relatedRatings?related=${splitID}`, {timeout: 3000})
+  return axios.get(`http://3.131.220.252:3000/reviews/relatedRatings?related=${splitID}`, {timeout: 2500})
   .then((response) => {
     return response
   })
@@ -162,7 +162,8 @@ module.exports.getRelatedData = (req, res) => {
               completeData = formatRatings(allData[1], completeData)
               completeData = averageRatings(completeData)
             }
-            if (allData[2] == null) {
+            let productData = allData[2]
+            if (allData[2] == null || productData.data[0][0].length === 0) {
               for (let id in completeData) {
                 completeData[id].name = ''
                 completeData[id].category = ''
