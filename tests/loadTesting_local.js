@@ -10,26 +10,26 @@ export const options = {
   //   {duration: '30s', target: 1000},
   //   {duration: '15s', target: 0}
   //   ],
-  // vus: 500,
-  // duration: '30s',
+  vus: 500,
+  duration: '30s'
   // thresholds: {
   //   errors: ['rate<1']
   // },
-  scenarios: {
-  constant_request_rate: {
-    executor: 'constant-arrival-rate',
-    rate: 1000,
-    timeUnit: '1s',
-    duration: '30s',
-    preAllocatedVUs: 500,
-    maxVUs: 1500
-    }
-  }
+  // scenarios: {
+  // constant_request_rate: {
+  //   executor: 'constant-arrival-rate',
+  //   rate: 1000,
+  //   timeUnit: '1s',
+  //   duration: '30s',
+  //   preAllocatedVUs: 500,
+  //   maxVUs: 1500
+  //   }
+  // }
 }
 
 export default function () {
 
-  const randomID = Math.floor(Math.random() * 1000)
+  const randomID = Math.floor(Math.random() * 10000)
 
   // check(http.get(`http://localhost:5000/api/related?id=${randomID}`), {
   //   'status is 200': (r) => r.status == 200,
